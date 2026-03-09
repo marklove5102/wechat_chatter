@@ -53,7 +53,6 @@ func initFlag() {
 	flag.StringVar(&config.SendURL, "send_url", "http://127.0.0.1:36060/onebot", "发送消息的 URL: http://127.0.0.1:36060/onebot")
 	flag.StringVar(&config.ReceiveHost, "receive_host", "127.0.0.1:58080", "接收消息的地址: 127.0.0.1:58080")
 	flag.StringVar(&config.FridaGadgetAddr, "gadget_addr", "127.0.0.1:27042", "Gadget 地址: 127.0.0.1:27042 仅当 type 为 gadget 时有效")
-	flag.IntVar(&config.WechatPid, "wechat_pid", 0, "微信进程 ID: 58183, 仅当 type 为 local 时有效")
 	flag.StringVar(&config.OnebotToken, "token", "MuseBot", "OneBot Token: MuseBot")
 	flag.StringVar(&config.ImagePath, "image_path", "", "图片路径: /Users/xxx/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/xxx/temp/xxx/2026-01/Img/")
 	flag.StringVar(&config.WechatConf, "wechat_conf", "../wechat_version/4_1_7_57_mac.json", "微信配置文件路径: ../wechat_version/4_1_6_12_mac.json")
@@ -67,13 +66,12 @@ func initFlag() {
 	fmt.Println("SendURL", config.SendURL)
 	fmt.Println("ReceiveHost", config.ReceiveHost)
 	fmt.Println("FridaGadgetAddr", config.FridaGadgetAddr)
-	fmt.Println("WechatPid", config.WechatPid)
 	fmt.Println("OnebotToken", config.OnebotToken)
 	fmt.Println("ImagePath", config.ImagePath)
 	fmt.Println("WechatConf", config.WechatConf)
 	fmt.Println("ConnType", config.ConnType)
 	fmt.Println("SendInterval", config.SendInterval)
-	fmt.Println("logLevel", logLevel)
+	fmt.Println("LogLevel", logLevel)
 	
 	err := EnsureDir("./audio")
 	if err != nil {
@@ -112,7 +110,13 @@ func initFrida() {
 		Fatal("无法获取本地设备", "err", err)
 	}
 	
-	session, err = device.Attach(config.WechatPid, nil)
+	pid, err := GetWeChatPID()
+	if err != nil {
+		Fatal("未发现正在运行的微信进程")
+	}
+	Info("微信进程 PID", "PID", pid)
+	
+	session, err = device.Attach(pid, nil)
 	if err != nil {
 		Fatal("Attach 失败 (请检查 SIP 状态或权限)", "err", err)
 	}

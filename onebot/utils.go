@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 	
@@ -250,4 +251,14 @@ func SaveImageToFile(ext string, data []byte) (string, error) {
 	}
 	
 	return targetPath, nil
+}
+
+func GetWeChatPID() (int, error) {
+	cmd := exec.Command("pgrep", "-x", "WeChat")
+	output, err := cmd.Output()
+	if err != nil {
+		return 0, fmt.Errorf("未发现正在运行的微信进程")
+	}
+	
+	return strconv.Atoi(strings.TrimSpace(string(output)))
 }

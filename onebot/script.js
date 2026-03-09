@@ -252,9 +252,12 @@ function generateBytes(n) {
 // -------------------------全局变量分区-------------------------
 
 // 文本消息全局变量
-var protobufAddr = baseAddr.add({{.protobufAddr}});
-var patchTextProtobufAddr = baseAddr.add({{.patchTextProtobufAddr}});
-var PatchTextProtobufDeleteAddr = baseAddr.add({{.PatchTextProtobufDeleteAddr}});
+var textCallbackFuncAddr = baseAddr.add({{.textCallbackFuncAddr}});
+var protobufAddr = textCallbackFuncAddr.add(0x44);
+var patchTextProtobufAddr = textCallbackFuncAddr.add(0x20);
+var patchTextProtobufByte
+var patchTextProtobufDeleteAddr = textCallbackFuncAddr.add(0x5C);
+var patchTextProtobufDeleteByte
 var textCgiAddr = ptr(0);
 var sendTextMessageAddr = ptr(0);
 var textMessageAddr = ptr(0);
@@ -363,32 +366,52 @@ function setupSendTextMessageDynamic() {
     // }));
 
     console.log("[+] Dynamic Memory Setup Complete. - Message Object: " + textMessageAddr);
+    patchTextProtobufByte = patchTextProtobufAddr.readByteArray(4);
+    patchTextProtobufDeleteByte = patchTextProtobufDeleteAddr.readByteArray(4);
 }
 
 setImmediate(setupSendTextMessageDynamic);
 
 
 function patchTextProtoBuf() {
-    Memory.patchCode(patchTextProtobufAddr, 4, code => {
-        const cw = new Arm64Writer(code, {pc: patchTextProtobufAddr});
-        cw.putNop();
-        cw.flush();
-    });
 
-    Memory.patchCode(PatchTextProtobufDeleteAddr, 4, code => {
-        const cw = new Arm64Writer(code, {pc: PatchTextProtobufDeleteAddr});
-        cw.putNop();
-        cw.flush();
-    });
+    Interceptor.attach(textCallbackFuncAddr, {
+        onEnter: function (args) {
+            var firstValue = this.context.sp.readU32();
+            if (firstValue === taskIdGlobal) {
+                if (patchTextProtobufAddr.readU32() !== 3573751839) {
+                    Memory.patchCode(patchTextProtobufAddr, 4, code => {
+                        const cw = new Arm64Writer(code, {pc: patchTextProtobufAddr});
+                        cw.putNop();
+                        cw.flush();
+                    });
+                    Memory.patchCode(patchTextProtobufDeleteAddr, 4, code => {
+                        const cw = new Arm64Writer(code, {pc: patchTextProtobufDeleteAddr});
+                        cw.putNop();
+                        cw.flush();
+                    });
+                }
+            } else {
+                if (patchTextProtobufAddr.readU32() === 3573751839) {
+                    Memory.patchCode(patchTextProtobufAddr, 4, code => {
+                        const cw = new Arm64Writer(code, {pc: patchTextProtobufAddr});
+                        cw.putBytes(new Uint8Array(patchTextProtobufByte));
+                        cw.flush();
+                    });
+                    Memory.patchCode(patchTextProtobufDeleteAddr, 4, code => {
+                        const cw = new Arm64Writer(code, {pc: patchTextProtobufDeleteAddr});
+                        cw.putBytes(new Uint8Array(patchTextProtobufDeleteByte));
+                        cw.flush();
+                    });
+                }
 
-    console.log("[+] Patching PatchTextProtobufDeleteAddr " + PatchTextProtobufDeleteAddr + " 成功." +
-        " Patching patchTextProtobufAddr " + patchTextProtobufAddr + " 成功.");
+            }
+        }
+    })
+
 }
 
-setTimeout(function () {
-    console.log("[+] 3秒等待结束，准备执行 Patch...");
-    patchTextProtoBuf();
-}, 3000);
+setImmediate(patchTextProtoBuf);
 
 function triggerSendTextMessage(taskId, receiver, content, atUser) {
     console.log("[+] Manual Trigger Started...");

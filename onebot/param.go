@@ -77,7 +77,6 @@ type Config struct {
 	SendURL         string `json:"send_url"`
 	ReceiveHost     string `json:"receive_host"`
 	FridaGadgetAddr string `json:"frida_gadget_addr"`
-	WechatPid       int    `json:"wechat_pid"`
 	OnebotToken     string `json:"onebot_token"`
 	ImagePath       string `json:"image_path"`
 	ConnType        string `json:"conn_type"`

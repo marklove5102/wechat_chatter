@@ -38,7 +38,7 @@ const myPatterns = [
     },
     {
         name: "downloadImagAddr",
-        pattern: "FF 07 00 B9 68 52 41 F9  15 89 41 F9 E0 03 14 AA"
+        pattern: "68 52 41 F9 19 8D 41 F9 1A 00 14 8B 5F 03 19 EB"
     },
     {
         name: "uploadImageAddr",
@@ -52,6 +52,10 @@ const myPatterns = [
         name: "buf2RespAddr",
         pattern: "3C 00 80 52 E0 C3 00 91"
     },
+    {
+        name: "hdPicDownloadAddr",
+        pattern: "E0 63 00 91 41 00 80 52 25 5C 80 52 06 00 80 52"
+    }
 ];
 
 // 执行扫描

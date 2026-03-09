@@ -1,7 +1,5 @@
 {
-  "protobufAddr": "0x24665A0",
-  "patchTextProtobufAddr": "0x246657C",
-  "PatchTextProtobufDeleteAddr": "0x24665B8",
+  "textCallbackFuncAddr": "0x246655C",
   "sendMessageCallbackFunc": "0x8791310",
   "sendFuncAddr": "0x47FE448",
   "req2bufEnterAddr": "0x36FC204",

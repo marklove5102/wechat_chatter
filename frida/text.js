@@ -161,7 +161,6 @@ function setupSendTextMessageDynamic() {
     console.log("[+] Dynamic Memory Setup Complete. - Message Object: " + textMessageAddr);
 
     patchTextProtobufByte = patchTextProtobufAddr.readByteArray(4);
-
     patchTextProtobufDeleteByte = patchTextProtobufDeleteAddr.readByteArray(4);
 }
 
@@ -173,29 +172,33 @@ function patchTextProtoBuf() {
     Interceptor.attach(textCallbackFuncAddr, {
         onEnter: function (args) {
             var firstValue = this.context.sp.readU32();
-            console.log("firstValue: " + firstValue + "taskIdGlobal:" + taskIdGlobal);
             if (firstValue === taskIdGlobal) {
-                Memory.patchCode(patchTextProtobufAddr, 4, code => {
-                    const cw = new Arm64Writer(code, {pc: patchTextProtobufAddr});
-                    cw.putNop();
-                    cw.flush();
-                });
-                Memory.patchCode(patchTextProtobufDeleteAddr, 4, code => {
-                    const cw = new Arm64Writer(code, {pc: patchTextProtobufDeleteAddr});
-                    cw.putNop();
-                    cw.flush();
-                });
+                if (patchTextProtobufAddr.readU32() !== 3573751839) {
+                    Memory.patchCode(patchTextProtobufAddr, 4, code => {
+                        const cw = new Arm64Writer(code, {pc: patchTextProtobufAddr});
+                        cw.putNop();
+                        cw.flush();
+                    });
+                    Memory.patchCode(patchTextProtobufDeleteAddr, 4, code => {
+                        const cw = new Arm64Writer(code, {pc: patchTextProtobufDeleteAddr});
+                        cw.putNop();
+                        cw.flush();
+                    });
+                }
             } else {
-                Memory.patchCode(patchTextProtobufAddr, 4, code => {
-                    const cw = new Arm64Writer(code, {pc: patchTextProtobufAddr});
-                    cw.putBytes(new Uint8Array(patchTextProtobufByte));
-                    cw.flush();
-                });
-                Memory.patchCode(patchTextProtobufDeleteAddr, 4, code => {
-                    const cw = new Arm64Writer(code, {pc: patchTextProtobufDeleteAddr});
-                    cw.putBytes(new Uint8Array(patchTextProtobufDeleteByte));
-                    cw.flush();
-                });
+                if (patchTextProtobufAddr.readU32() === 3573751839) {
+                    Memory.patchCode(patchTextProtobufAddr, 4, code => {
+                        const cw = new Arm64Writer(code, {pc: patchTextProtobufAddr});
+                        cw.putBytes(new Uint8Array(patchTextProtobufByte));
+                        cw.flush();
+                    });
+                    Memory.patchCode(patchTextProtobufDeleteAddr, 4, code => {
+                        const cw = new Arm64Writer(code, {pc: patchTextProtobufDeleteAddr});
+                        cw.putBytes(new Uint8Array(patchTextProtobufDeleteByte));
+                        cw.flush();
+                    });
+                }
+
             }
         }
     })
@@ -323,8 +326,6 @@ function attachSendTextProto() {
 
     Interceptor.attach(protobufAddr, {
         onEnter: function (args) {
-            console.log("[+] Protobuf 拦截命中");
-
             var sp = this.context.sp;
             var firstValue = sp.readU32();
             if (firstValue !== taskIdGlobal) {
