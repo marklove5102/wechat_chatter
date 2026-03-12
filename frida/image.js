@@ -667,13 +667,13 @@ function attachUploadMedia() {
     Interceptor.attach(uploadImageAddr.add(0x10), {
         onEnter: function (args) {
             uploadGlobalX0 = this.context.x0;
-            const selfId = uploadImageX1.add(0x68).readUtf8String();
-            const imagePath = uploadImageX1.add(0xe0).readPointer().readUtf8String();
+            const selfId = this.context.x1.add(0x68).readUtf8String();
+            const imagePath = this.context.x1.add(0xe0).readPointer().readUtf8String();
             send({
                 type: "upload",
                 self_id: selfId,
             })
-            console.log("UploadMedia x0: " + uploadGlobalX0 + " x1: " + uploadImageX1 + " imagePath: " + imagePath + " selfId: " + selfId);
+            console.log("UploadMedia x0: " + uploadGlobalX0 + " imagePath: " + imagePath + " selfId: " + selfId);
         }
     })
 }
