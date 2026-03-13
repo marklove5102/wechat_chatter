@@ -118,6 +118,7 @@ type FileMsg struct {
 	XMLName       xml.Name      `xml:"msg"`
 	Image         Image         `xml:"img"`
 	Emoji         Emoji         `xml:"emoji"`
+	Video         VideoMsg      `xml:"videomsg"`
 	GameExt       GameExt       `xml:"gameext"`
 	AppMsg        AppMsg        `xml:"appmsg"`
 	ExtCommonInfo ExtCommonInfo `xml:"extcommoninfo"`
@@ -239,4 +240,27 @@ type ExtCommonInfo struct {
 type AppInfo struct {
 	Version string `xml:"version"`
 	AppName string `xml:"appname"`
+}
+
+type VideoMsg struct {
+	AesKey            string `xml:"aeskey,attr"`            // 视频解密 Key
+	CdnVideoUrl       string `xml:"cdnvideourl,attr"`       // 视频 CDN 地址
+	CdnThumbAesKey    string `xml:"cdnthumbaeskey,attr"`    // 缩略图解密 Key
+	CdnThumbUrl       string `xml:"cdnthumburl,attr"`       // 缩略图 CDN 地址
+	Length            int64  `xml:"length,attr"`            // 视频文件大小 (字节)
+	PlayLength        int    `xml:"playlength,attr"`        // 播放时长 (秒)
+	CdnThumbLength    int    `xml:"cdnthumblength,attr"`    // 缩略图大小
+	CdnThumbWidth     int    `xml:"cdnthumbwidth,attr"`     // 缩略图宽度
+	CdnThumbHeight    int    `xml:"cdnthumbheight,attr"`    // 缩略图高度
+	FromUsername      string `xml:"fromusername,attr"`      // 发送者 ID
+	Md5               string `xml:"md5,attr"`               // 视频 MD5
+	NewMd5            string `xml:"newmd5,attr"`            // 新版 MD5
+	IsPlaceholder     int    `xml:"isplaceholder,attr"`     // 是否占位符
+	RawMd5            string `xml:"rawmd5,attr"`            // 原始 MD5
+	RawLength         int64  `xml:"rawlength,attr"`         // 原始长度
+	CdnRawVideoUrl    string `xml:"cdnrawvideourl,attr"`    // 原始视频 CDN 地址
+	CdnRawVideoAesKey string `xml:"cdnrawvideoaeskey,attr"` // 原始视频解密 Key
+	OverwriteNewMsgId int64  `xml:"overwritenewmsgid,attr"` // 覆盖消息 ID
+	OriginSourceMd5   string `xml:"originsourcemd5,attr"`   // 原始源 MD5
+	IsAd              int    `xml:"isad,attr"`              // 是否为广告
 }

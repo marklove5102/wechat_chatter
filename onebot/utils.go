@@ -151,6 +151,23 @@ func DetectFileFormat(data []byte) string {
 	}
 	
 	switch {
+	// 视频格式
+	case bytes.HasPrefix(data, []byte{0x00, 0x00, 0x00}): // MP4/MOV 通常以 ftyp 开头，后面是具体类型
+		if len(data) > 4 {
+			switch string(data[4:8]) {
+			case "ftyp", "moov", "mdat", "wide", "free":
+				return "mp4"
+			case "isom", "mp41", "mp42", "M4V ", "M4A ", "M4P ":
+				return "mp4"
+			}
+		}
+	case bytes.HasPrefix(data, []byte("FLV\x01")): // FLV
+		return "flv"
+	case bytes.HasPrefix(data, []byte{0x30, 0x26, 0xB2, 0x75, 0x8E, 0x66, 0xCF, 0x11}): // ASF/WMV/WMA
+		if len(data) > 8 && bytes.HasPrefix(data[8:], []byte{0xA6, 0xD9, 0x00, 0xAA, 0x00, 0x62, 0xCE, 0x6C}) {
+			return "wmv"
+		}
+	
 	// 图片格式
 	case bytes.HasPrefix(data, []byte{0xFF, 0xD8, 0xFF}):
 		return "jpg"
@@ -184,6 +201,8 @@ func DetectFileFormat(data []byte) string {
 	default:
 		return "unknown"
 	}
+	
+	return "unknown"
 }
 
 // detectOfficeFormat 检测 Office 2007+ 文件具体类型

@@ -19,7 +19,12 @@ func Download(rawMsg []byte) error {
 		if beforeDownloadReq.FilePath != "" {
 			return nil
 		}
-		beforeDownloadReq.Media = append(beforeDownloadReq.Media, downloadReq.Media...)
+		if time.Now().UnixMilli()-beforeDownloadReq.LastAppendTime > 10000000 {
+			beforeDownloadReq.Media = downloadReq.Media
+		} else {
+			beforeDownloadReq.Media = append(beforeDownloadReq.Media, downloadReq.Media...)
+		}
+		
 		beforeDownloadReq.LastAppendTime = time.Now().UnixMilli()
 	} else {
 		downloadReq.LastAppendTime = time.Now().UnixMilli()

@@ -131,6 +131,20 @@ func HandleMsg(jsonData []byte) ([]byte, error) {
 			}
 			
 			msg.Data.URL = "file://" + path
+		case "video":
+			var fileMsg FileMsg
+			err = xml.Unmarshal([]byte(msg.Data.Text), &fileMsg)
+			if err != nil {
+				Error("XML解析失败", "err", err)
+				return nil, err
+			}
+			path, err := GetDownloadPath(fileMsg.Video.CdnVideoUrl, fileMsg.Video.AesKey)
+			if err != nil {
+				Error("获取文件路径失败", "err", err)
+				return nil, err
+			}
+			
+			msg.Data.URL = "file://" + path
 		case "face":
 			var fileMsg FileMsg
 			err = xml.Unmarshal([]byte(msg.Data.Text), &fileMsg)
@@ -158,7 +172,7 @@ func HandleMsg(jsonData []byte) ([]byte, error) {
 }
 
 func GetDownloadPath(cdnUrl, aesKeyStr string) (string, error) {
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 10; i++ {
 		if downloadMsgInter, ok := userID2FileMsgMap.Load(cdnUrl); ok {
 			downloadReq := downloadMsgInter.(*DownloadRequest)
 			if downloadReq.FilePath != "" {
@@ -170,7 +184,7 @@ func GetDownloadPath(cdnUrl, aesKeyStr string) (string, error) {
 			Info("文件等待下载", "url", cdnUrl, "times", i, "last_append_time", timeSinceLastAppend)
 			
 			// 如果数据仍在接收中（1秒内有新数据），继续等待
-			if timeSinceLastAppend < 1000 && i < 4 {
+			if timeSinceLastAppend < 1000 && i < 9 {
 				time.Sleep(2 * time.Second)
 				continue
 			}
