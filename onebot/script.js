@@ -897,7 +897,6 @@ function patchVideoProtoBuf() {
 setImmediate(patchVideoProtoBuf);
 
 function triggerSendImgMessage(taskId, sender, receiver) {
-    console.log("[+] Manual Trigger Started...");
     if (!taskId || !receiver || !sender) {
         console.error("[!] taskId or receiver or sender is empty!");
         return "fail";
