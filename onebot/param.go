@@ -88,7 +88,8 @@ type Config struct {
 	ImagePath       string `json:"image_path"`
 	ConnType        string `json:"conn_type"`
 	SendInterval    int    `json:"send_interval"`
-	
+	WechatPid       int    `json:"wechat_pid"`
+
 	WechatConf string `json:"wechat_conf"`
 }
 

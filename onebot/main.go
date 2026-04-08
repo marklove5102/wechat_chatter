@@ -13,6 +13,7 @@ import (
 	"strings"
 	"syscall"
 	"text/template"
+	"time"
 
 	"github.com/frida/frida-go/frida"
 )
@@ -62,6 +63,7 @@ func initFlag() {
 	flag.StringVar(&config.WechatConf, "wechat_conf", "../wechat_version/4_1_8_29_mac.json", "微信配置文件路径: ../wechat_version/4_1_6_12_mac.json")
 	flag.StringVar(&config.ConnType, "conn_type", "http", "连接类型: http | websocket")
 	flag.IntVar(&config.SendInterval, "send_interval", 1000, "发送间隔: ms")
+	flag.IntVar(&config.WechatPid, "wechat_pid", 0, "微信进程 PID，不设置则自动查找")
 	flag.StringVar(&logLevel, "log_level", "info", "log level")
 
 	flag.Parse()
@@ -75,6 +77,7 @@ func initFlag() {
 	fmt.Println("WechatConf", config.WechatConf)
 	fmt.Println("ConnType", config.ConnType)
 	fmt.Println("SendInterval", config.SendInterval)
+	fmt.Println("WechatPid", config.WechatPid)
 	fmt.Println("LogLevel", logLevel)
 }
 
@@ -107,11 +110,21 @@ func initFrida() {
 		Fatal("无法获取本地设备", "err", err)
 	}
 
-	pid, err := GetWeChatPID()
-	if err != nil {
-		Fatal("未发现正在运行的微信进程")
+	var pid int
+	if config.WechatPid > 0 {
+		pid = config.WechatPid
+		Info("使用指定的微信进程 PID", "PID", pid)
+	} else {
+		for {
+			pid, err = GetWeChatPID()
+			if err == nil {
+				break
+			}
+			Info("未发现正在运行的微信进程，5秒后重试...")
+			time.Sleep(5 * time.Second)
+		}
+		Info("自动发现微信进程 PID", "PID", pid)
 	}
-	Info("微信进程 PID", "PID", pid)
 	MonitorProcessExit(pid)
 
 	session, err = device.Attach(pid, nil)
