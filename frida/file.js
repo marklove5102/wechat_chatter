@@ -103,14 +103,14 @@ function generateBytes(n) {
 // 双方公共使用的地址
 var triggerX1Payload;
 var triggerX0;
-var req2bufEnterAddr = baseAddr.add(0x380b950);
-var req2bufExitAddr = baseAddr.add(0x380CA64);
-var sendFuncAddr = baseAddr.add(0x4992040);
+var req2bufEnterAddr = baseAddr.add(0x3885598);
+var req2bufExitAddr = baseAddr.add(0x38866AC);
+var sendFuncAddr = baseAddr.add(0x4a572c8);
 var insertMsgAddr = ptr(0);
 var sendMsgType = "";
 
 // 图片消息全局变量
-var imageCallbackFuncAddr = baseAddr.add(0x251E880);
+var imageCallbackFuncAddr = baseAddr.add(0x259F288);
 var imgProtobufAddr = imageCallbackFuncAddr.add(0x50);
 var patchImgProtobufFunc1 = imageCallbackFuncAddr.add(0x10);
 var patchImgProtobufFunc1Byte;
@@ -120,7 +120,7 @@ var imgProtobufDeleteAddr = imageCallbackFuncAddr.add(0x6c);
 var imgProtobufDeleteAddrByte;
 
 // 视频消息全局变量
-var videoCallbackFuncAddr = baseAddr.add(0x258BB10);
+var videoCallbackFuncAddr = baseAddr.add(0x259F288);
 var videoProtobufAddr = videoCallbackFuncAddr.add(0x50);
 var patchVideoProtobufFunc1 = videoCallbackFuncAddr.add(0x10);
 var patchVideoProtobufFunc1Byte;
@@ -129,15 +129,15 @@ var patchVideoProtobufFunc2Byte;
 var videoProtobufDeleteAddr = videoCallbackFuncAddr.add(0x6c);
 var videoProtobufDeleteAddrByte;
 
-var uploadImageAddr = baseAddr.add(0x4ad95c0);
-var cndOnCompleteAddr = baseAddr.add(0x37c8f00);
-var imgMessageCallbackFunc1 = baseAddr.add(0x8919A10);
-var videoMessageCallbackFunc1 = baseAddr.add(0x891C7B0);
+var uploadImageAddr = baseAddr.add(0x4b9e88c);
+var cndOnCompleteAddr = baseAddr.add(0x3842974);
+var imgMessageCallbackFunc1 = baseAddr.add(0x89FCFC8);
+var videoMessageCallbackFunc1 = baseAddr.add(0x89FED48);
 
-var uploadGetCallbackWrapperAddr = baseAddr.add(0x4aa7084);
-var uploadGetCallbackWrapperFuncAddr = baseAddr.add(0x37C874C);
-var uploadOnCompleteAddr = baseAddr.add(0x4AA7680);
-var uploadOnCompleteFuncAddr = baseAddr.add(0x37C9930);
+var uploadGetCallbackWrapperAddr = baseAddr.add(0x4b6c350);
+var uploadGetCallbackWrapperFuncAddr = baseAddr.add(0x3841DC4);
+var uploadOnCompleteAddr = baseAddr.add(0x4B6C94C);
+var uploadOnCompleteFuncAddr = baseAddr.add(0x3841DC4);
 
 var uploadImageX1 = ptr(0);
 var imgCgiAddr = ptr(0);

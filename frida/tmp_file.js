@@ -694,7 +694,7 @@ function attachFileProto() {
             const targetId = fileUploadInfo.targetId;
             const fileName = fileUploadInfo.fileName || "";
             const fileSize = fileUploadInfo.fileSize || "0";
-            const appId = fileUploadInfo.appId || "wx6618f1cfc6c132f8";
+            const appId = fileUploadInfo.appId || "";
             const fileExt = fileUploadInfo.fileExt || "";
             const fileUploadToken = fileUploadInfo.fileUploadToken || "";
 

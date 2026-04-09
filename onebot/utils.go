@@ -355,9 +355,10 @@ func DetectAndSaveImage(data []byte) (string, error) {
 	return SaveImageToFile(ext, data)
 }
 
-// MonitorProcessExit 监控指定 PID 的进程是否退出
-// 如果进程退出，则发送 SIGTERM 停止当前进程
-func MonitorProcessExit(pid int) {
+// MonitorProcess 监控指定 PID 的进程是否退出
+// 如果进程退出，清理 Frida 资源并等待微信重新启动后重新 attach
+func MonitorProcess(pid int) {
+	Info("开始监控微信进程", "PID", pid)
 	go func() {
 		ticker := time.NewTicker(5 * time.Second)
 		defer ticker.Stop()
@@ -365,20 +366,33 @@ func MonitorProcessExit(pid int) {
 		for range ticker.C {
 			proc, err := os.FindProcess(pid)
 			if err != nil {
-				// 进程不存在，发送 SIGTERM 退出
-				Info("监控的进程已退出，正在停止当前服务...")
-				syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
+				Info("微信进程已退出，清理 Frida 资源，等待微信重新启动...")
+				cleanAndReattach()
 				return
 			}
 
 			// 检查进程是否存活
 			err = proc.Signal(syscall.Signal(0))
 			if err != nil {
-				// 进程不存在或已退出，发送 SIGTERM 退出
-				Info("监控的进程已退出，正在停止当前服务...")
-				syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
+				Info("微信进程已退出，清理 Frida 资源，等待微信重新启动...")
+				cleanAndReattach()
 				return
 			}
 		}
 	}()
+}
+
+func cleanAndReattach() {
+	if fridaScript != nil {
+		fridaScript.Clean()
+		Info("Frida 脚本资源已清理")
+	}
+	if session != nil {
+		session.Clean()
+		Info("Frida 会话资源已清理")
+	}
+
+	Info("等待微信重新启动...")
+	// 重新等待微信进程并 attach
+	attachWechat()
 }
